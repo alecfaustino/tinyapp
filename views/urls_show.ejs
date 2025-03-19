@@ -28,7 +28,13 @@
         <h2>Edit</h2>
         <form method="POST" action="/urls/<%= id %>/edit">
           <div>
-            <label for="input-field-edit"></label>New URL: <input type="text" placeholder="Enter URL"> <button type="submit" class="btn btn-primary">Submit</button>
+            <label for="input-field-edit"></label>New URL: <input 
+            type="text" 
+            placeholder="Enter URL" 
+            name="longURL"
+            > 
+            <!-- name makes the URL is accessible by req.body.longURL -->
+            <button type="submit" class="btn btn-primary">Submit</button>
           </div>
         </form>
       </div>

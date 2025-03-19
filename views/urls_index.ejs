@@ -28,6 +28,7 @@
           <tr>
             <th scope="col">Short URL ID</th>
             <th scope="col">Long URL</th>
+            <th scope="col">Edit</th>
             <th scope="col">Delete</th>
           </tr>
         </thead>
@@ -40,6 +41,12 @@
               <td><%= id %></td>
               <!-- table data: value (the long form) -->
               <td><%= urls[id] %></td>
+              <!-- table data: the edit button -->
+              <td>
+                <form method="POST" action="/urls/<%= id %>/edit">
+                  <button type="submit" class="btn btn-outline-primary">Edit</button>
+                </form>
+              </td>
               <!-- table data: the delete button -->
               <td>
                 <!-- dynamically pass the id with <%= id %> -->
