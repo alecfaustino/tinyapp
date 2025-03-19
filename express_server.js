@@ -12,6 +12,7 @@ const urlDatabase = {
 // then it will add the data into req.body
 app.use(express.urlencoded({ extended: true }));
 
+// maybe will remove this in finished version
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -50,8 +51,14 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+// maybe remove this in finished version of project
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
+});
+
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id];
+  res.redirect(longURL);
 });
 
 app.listen(PORT, () => {
