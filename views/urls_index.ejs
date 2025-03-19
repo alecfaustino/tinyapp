@@ -42,6 +42,7 @@
               <td><%= urls[id] %></td>
               <!-- table data: the delete button -->
               <td>
+                <!-- dynamically pass the id with <%= id %> -->
                 <form method="POST" action="/urls/<%= id %>/delete">
                   <button type="submit" class="btn btn-outline-danger">Delete</button>
                 </form>
