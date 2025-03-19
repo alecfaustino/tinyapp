@@ -24,19 +24,28 @@
       <h3>My URLs</h3>
       <table class="table">
         <thead>
+          <!-- Rows for the headers -->
           <tr>
             <th scope="col">Short URL ID</th>
             <th scope="col">Long URL</th>
+            <th scope="col">Delete</th>
           </tr>
         </thead>
         <tbody>
           <!-- Looping through each key in the urlDatabase -->
           <% for (let id in urls) { %>
+            <!-- a new row for each id in urls -->
             <tr>
-              <!-- key (the short form) -->
+              <!-- table data: key (the short form) -->
               <td><%= id %></td>
-              <!-- value (the long form) -->
+              <!-- table data: value (the long form) -->
               <td><%= urls[id] %></td>
+              <!-- table data: the delete button -->
+              <td>
+                <form method="POST" action="/urls/<%= id %>/delete">
+                  <button type="submit" class="btn btn-outline-danger">Delete</button>
+                </form>
+              </td>
             </tr>
           <% } %>
         </tbody>
