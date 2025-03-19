@@ -43,9 +43,7 @@
               <td><%= urls[id] %></td>
               <!-- table data: the edit button -->
               <td>
-                <form method="POST" action="/urls/<%= id %>/edit">
-                  <button type="submit" class="btn btn-outline-primary">Edit</button>
-                </form>
+                <a href="/urls/<%= id %>" class="btn btn-outline-primary">Edit</a>
               </td>
               <!-- table data: the delete button -->
               <td>

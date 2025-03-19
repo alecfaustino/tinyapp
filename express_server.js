@@ -29,6 +29,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+// for urls_show when we have a path to a specific shortened url id
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
     id: req.params.id, 
@@ -38,6 +39,7 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// when we add a new link through create new URL
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
@@ -45,12 +47,24 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
+// for when we hit the delete button on /urls
 app.post("/urls/:id/delete", (req, res) => {
   //req.params.id contains the data from the form 
   delete urlDatabase[req.params.id];
 
   res.redirect("/urls");
-})
+});
+
+// for when we submit the edit form, render urls_index again with updated
+app.post("/urls/:id", (req, res) => {
+  const shortId = req.params.id;
+  //res.body.longURL is available due to name attribute on input
+  const newLongURL = req.body.longURL;
+
+  //update urlDatabase
+  urlDatabase[shortId] = newLongURL;
+  res.redirect("/urls");
+});
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
