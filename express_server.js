@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -11,6 +12,7 @@ const urlDatabase = {
 // convert request body to a readable string from the request body
 // then it will add the data into req.body
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // maybe will remove this in finished version
 app.get("/", (req, res) => {
@@ -19,6 +21,7 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const templateVars = {
+    username: req.cookies["username"],
     urls: urlDatabase,
   };
 
@@ -26,12 +29,14 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+  username = req.cookies["username"],
   res.render("urls_new");
 });
 
 // for urls_show when we have a path to a specific shortened url id
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
+    username: req.cookies["username"],
     id: req.params.id, 
     longURL: urlDatabase[req.params.id],
   };
