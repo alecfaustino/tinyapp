@@ -63,6 +63,7 @@ app.post("/urls/:id", (req, res) => {
 
   //update urlDatabase
   urlDatabase[shortId] = newLongURL;
+  //render urls_index
   res.redirect("/urls");
 });
 
