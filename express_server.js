@@ -87,10 +87,19 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
+// when we add a username and submit login
 app.post("/login", (req, res) => {
   // req.body.username accessible due to the form 
   const username = req.body.username;
   res.cookie("username", username);
+
+  res.redirect("/urls");
+});
+
+// logged in -> log out
+app.post("/logout", (req, res) => {
+  //make username falsey value
+  res.clearCookie("username");
 
   res.redirect("/urls");
 });
