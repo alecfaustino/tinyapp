@@ -16,7 +16,7 @@
         <!-- render if logged in  -->
         <% if(username) { %>
           <form class="d-flex" method="POST" action="/logout">
-            <%= username %>
+            <span>Logged in as: <%= username %></span>
               <button type="submit" class="btn btn-outline-dark">Logout</button>
           </form>
           <% } else{ %>
