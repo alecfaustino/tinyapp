@@ -14,9 +14,9 @@
     <div>
       <div>
         <!-- render if logged in  -->
-        <% if(username) { %>
+        <% if(user) { %>
           <form class="d-flex" method="POST" action="/logout">
-            <span>Logged in as: <%= username %></span>
+            <span>Logged in as: <%= user.email %></span>
               <button type="submit" class="btn btn-outline-dark">Logout</button>
           </form>
           <% } else{ %>

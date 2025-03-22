@@ -33,8 +33,9 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  const user = users[req.cookies.user_id] || null;
   const templateVars = {
-    username: req.cookies["username"],
+    user,
     urls: urlDatabase,
   };
 
@@ -57,19 +58,22 @@ app.post("/register", (req, res) => {
   };
 
   res.cookie("user_id", randomID);
-  console.log(users);
   res.redirect("/urls");
 });
 
 app.get("/urls/new", (req, res) => {
-  username = req.cookies["username"],
-  res.render("urls_new");
+  // username is either set or not set 
+  const user = users[req.cookies.user_id] || null;
+  // pass user
+  res.render("urls_new", { user });
 });
 
 // for urls_show when we have a path to a specific shortened url id
 app.get("/urls/:id", (req, res) => {
+  // user is either logged in or not
+  const user = users[req.cookies.user_id] || null;
   const templateVars = {
-    username: req.cookies["username"],
+    user,
     id: req.params.id, 
     longURL: urlDatabase[req.params.id],
   };
@@ -123,7 +127,7 @@ app.get("/u/:id", (req, res) => {
 // when we add a username and submit login
 app.post("/login", (req, res) => {
   // req.body.username accessible due to the form 
-  const username = req.body.username;
+  const username = users[req.cookies.user_id];
   res.cookie("username", username);
 
   res.redirect("/urls");
@@ -132,7 +136,7 @@ app.post("/login", (req, res) => {
 // logged in -> log out
 app.post("/logout", (req, res) => {
   //make username falsey value
-  res.clearCookie("username");
+  res.clearCookie("user_id");
 
   res.redirect("/urls");
 });
