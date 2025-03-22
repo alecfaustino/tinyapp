@@ -34,8 +34,9 @@ app.get("/", (req, res) => {
 
 //render login ejs
 app.get("/login", (req, res) => {
-
-  res.render("login");
+  const user = users[req.cookies.user_id] || null;
+  const templateVars = { user }
+  res.render("login", templateVars);
 });
 
 app.get("/urls", (req, res) => {
@@ -50,7 +51,9 @@ app.get("/urls", (req, res) => {
 
 // render the register.ejs 
 app.get("/register", (req, res) => {
-  res.render("register");
+  const user = users[req.cookies.user_id] || null;
+  const templateVars = { user }
+  res.render("register", templateVars);
 });
 
 

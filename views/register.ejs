@@ -14,17 +14,20 @@
 </head>
 <body>
 
+  <%- include('partials/_header') %> 
+
+  <h3 class="mb-3 px-3 pt-3 w-50">Create Account</h3>
   <form method="POST" action="/register">
-    <div class="form-floating mb-3">
+    <div class="mb-3 px-3 w-50">
       <label for="floatingInput">Email address</label>
       <input type="email" name ="email" class="form-control" id="floatingInput" placeholder="name@example.com">
     </div>
-    <div class="form-floating">
+    <div class="mb-3 px-3 w-50">
       <label for="floatingPassword">Password</label>
       <input type="password" name ="password" class="form-control" id="floatingPassword" placeholder="Password">
     </div>
-    <div class="mt-3">
-      <button type="submit" class="btn btn-dark">Register</button>
+    <div class="mb-3 px-3 w-50">
+      <button type="submit" class="btn btn-dark w-25">Register</button>
     </div>
   </form>
   

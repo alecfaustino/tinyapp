@@ -17,14 +17,22 @@
         <% if(user) { %>
           <form class="d-flex" method="POST" action="/logout">
             <span>Logged in as: <%= user.email %></span>
+            <div class="px-3">
               <button type="submit" class="btn btn-outline-dark">Logout</button>
+            </div>
           </form>
           <% } else{ %>
             <!-- render if not logged in -->
             <!-- display: flex in bootstrap -->
-              <a href="/register" class="btn btn-outline-dark">Register</a>
-              <a href="/login" class="btn btn-outline-dark">Login</a>
-              
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+              <div class="navbar-nav">
+                <a class="nav-item nav-link" href="/login">Login</a>
+                <a class="nav-item nav-link" href="/register">Register</a>
+              </div>
+            </div>
+              <!-- <a href="/register" class="nav-item nav-link">Register</a>
+              <a href="/login" class="nav-item nav-link">Login</a>
+               -->
             <% } %>
 
       </div>
