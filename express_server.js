@@ -53,6 +53,70 @@ app.get("/register", (req, res) => {
   res.render("register");
 });
 
+
+app.get("/urls/new", (req, res) => {
+  // user is either set or not set 
+  const user = users[req.cookies.user_id] || null;
+  // pass user
+  res.render("urls_new", { user });
+});
+
+// for urls_show when we have a path to a specific shortened url id
+app.get("/urls/:id", (req, res) => {
+  // user is either logged in or not
+  const user = users[req.cookies.user_id] || null;
+  const templateVars = {
+    user,
+    id: req.params.id, 
+    longURL: urlDatabase[req.params.id],
+  };
+  
+  res.render("urls_show", templateVars);
+});
+
+// when we add a new link through create new URL
+app.post("/urls", (req, res) => {
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
+  
+  res.redirect(`/urls/${shortURL}`);
+});
+
+// for when we hit the delete button on /urls
+app.post("/urls/:id/delete", (req, res) => {
+  //req.params.id contains the data from the form 
+  delete urlDatabase[req.params.id];
+  
+  res.redirect("/urls");
+});
+
+// for when we submit the edit form, render urls_index again with updated
+app.post("/urls/:id", (req, res) => {
+  const shortId = req.params.id;
+  //res.body.longURL is available due to name attribute on input
+  const newLongURL = req.body.longURL;
+  
+  //update urlDatabase
+  urlDatabase[shortId] = newLongURL;
+  //render urls_index
+  res.redirect("/urls");
+});
+
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+// maybe remove this in finished version of project
+app.get("/hello", (req, res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
+});
+
+app.get("/u/:id", (req, res) => {
+  // req.params.id contains the data from the form
+  const longURL = urlDatabase[req.params.id];
+  res.redirect(longURL);
+});
+
 //handle registration form 
 app.post("/register", (req, res) => {
 
@@ -77,89 +141,38 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
-app.get("/urls/new", (req, res) => {
-  // username is either set or not set 
-  const user = users[req.cookies.user_id] || null;
-  // pass user
-  res.render("urls_new", { user });
-});
-
-// for urls_show when we have a path to a specific shortened url id
-app.get("/urls/:id", (req, res) => {
-  // user is either logged in or not
-  const user = users[req.cookies.user_id] || null;
-  const templateVars = {
-    user,
-    id: req.params.id, 
-    longURL: urlDatabase[req.params.id],
-  };
-
-  res.render("urls_show", templateVars);
-});
-
-// when we add a new link through create new URL
-app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-
-  res.redirect(`/urls/${shortURL}`);
-});
-
-// for when we hit the delete button on /urls
-app.post("/urls/:id/delete", (req, res) => {
-  //req.params.id contains the data from the form 
-  delete urlDatabase[req.params.id];
-
-  res.redirect("/urls");
-});
-
-// for when we submit the edit form, render urls_index again with updated
-app.post("/urls/:id", (req, res) => {
-  const shortId = req.params.id;
-  //res.body.longURL is available due to name attribute on input
-  const newLongURL = req.body.longURL;
-
-  //update urlDatabase
-  urlDatabase[shortId] = newLongURL;
-  //render urls_index
-  res.redirect("/urls");
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-// maybe remove this in finished version of project
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
-app.get("/u/:id", (req, res) => {
-  // req.params.id contains the data from the form
-  const longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);
-});
-
-// when we add a username and submit login
+// handling log in page
 app.post("/login", (req, res) => {
-  // req.body.username accessible due to the form 
-  const username = users[req.cookies.user_id];
-  res.cookie("username", username);
+  const email = req.body.email;
+  const password = req.body.password;
+  // user should have been store in users object
+  const user = getUserByEmail(email);
+  
+  // if no user was found, it would return null
+  if(!user) {
+    return res.status(403).send("Email was not found!");
+  } 
+  // match the password on the form vs user stored password
+  if(user.password !== password) {
+    return res.status(403).send("Invalid Password!");
+  }
 
+  // if both conditions met, login success, set cookie
+  res.cookie("user_id", user.id);
   res.redirect("/urls");
 });
 
 // logged in -> log out
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
+// used to generate both the short URL and unique userIDs
 function generateRandomString() {
   return Math.random() // generates random 1 > num > 0
   .toString(36) // converting the number to base 36 (0-9 & a-z)
@@ -167,6 +180,7 @@ function generateRandomString() {
   // will only provide 6 characters max 
 }
 
+// loop through the users object to see if the email exists. 
 function getUserByEmail(email) {
   for (const user in users) {
     if (users[user].email === email) {
