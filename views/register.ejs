@@ -10,18 +10,18 @@
       integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
       crossorigin="anonymous"
     />
-  <title>Document</title>
+  <title>Tiny App - Register</title>
 </head>
 <body>
 
   <form method="POST" action="/register">
     <div class="form-floating mb-3">
       <label for="floatingInput">Email address</label>
-      <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+      <input type="email" name ="email" class="form-control" id="floatingInput" placeholder="name@example.com">
     </div>
     <div class="form-floating">
       <label for="floatingPassword">Password</label>
-      <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+      <input type="password" name ="password" class="form-control" id="floatingPassword" placeholder="Password">
     </div>
     <div class="mt-3">
       <button type="submit" class="btn btn-dark">Register</button>
