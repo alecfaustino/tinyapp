@@ -132,6 +132,11 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   // user is either set or not set 
   const user = users[req.cookies.user_id] || null;
+
+  // if the user is not logged in, send to login page
+  if(!user) {
+    return res.redirect("/login");
+  }
   // pass user
   res.render("urls_new", { user });
 });
@@ -151,9 +156,16 @@ app.get("/urls/:id", (req, res) => {
 
 // when we add a new link through create new URL
 app.post("/urls", (req, res) => {
+  const user = users[req.cookies.user_id] || null;
+
+  // user cannot make shortened URLs without login
+  if(!user) {
+    return res.status(403).send("Please login to shorten URLs");
+  }
+
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
-  
+
   res.redirect(`/urls/${shortURL}`);
 });
 
