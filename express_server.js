@@ -32,6 +32,12 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+//render login ejs
+app.get("/login", (req, res) => {
+
+  res.render("login");
+});
+
 app.get("/urls", (req, res) => {
   const user = users[req.cookies.user_id] || null;
   const templateVars = {
@@ -50,15 +56,17 @@ app.get("/register", (req, res) => {
 //handle registration form 
 app.post("/register", (req, res) => {
 
+  //validate that values were entered for both fields
   if (req.body.email === "" || req.body.password === "") {
     return res.status(400).send("Email and Password cannot be empty!");
   }
 
+  // check if email is already inside the users object
   if (getUserByEmail(req.body.email)) {
     return res.status(400).send("User already exists!");
   }
-  const randomID = generateRandomString();
 
+  const randomID = generateRandomString();
   users[randomID] = {
     id: randomID,
     email: req.body.email,
@@ -143,7 +151,6 @@ app.post("/login", (req, res) => {
 
 // logged in -> log out
 app.post("/logout", (req, res) => {
-  //make username falsey value
   res.clearCookie("user_id");
 
   res.redirect("/urls");
