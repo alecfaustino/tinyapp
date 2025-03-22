@@ -196,6 +196,12 @@ app.get("/urls.json", (req, res) => {
 app.get("/u/:id", (req, res) => {
   // req.params.id contains the data from the form
   const longURL = urlDatabase[req.params.id];
+
+   // handling if url does not exist (the id always exists because it's in req.params)
+   if(!longURL) {
+    return res.status(404).send("The shortened URL does not exist");
+  }
+  
   res.redirect(longURL);
 });
 
