@@ -49,6 +49,14 @@ app.get("/register", (req, res) => {
 
 //handle registration form 
 app.post("/register", (req, res) => {
+
+  if (req.body.email === "" || req.body.password === "") {
+    return res.status(400).send("Email and Password cannot be empty!");
+  }
+
+  if (getUserByEmail(req.body.email)) {
+    return res.status(400).send("User already exists!");
+  }
   const randomID = generateRandomString();
 
   users[randomID] = {
@@ -150,4 +158,13 @@ function generateRandomString() {
   .toString(36) // converting the number to base 36 (0-9 & a-z)
   .substring(2, 2 + 6); // removes the 0. from beginning (from how random generates #) 
   // will only provide 6 characters max 
+}
+
+function getUserByEmail(email) {
+  for (const user in users) {
+    if (users[user].email === email) {
+      return users[user];
+    }
+  }
+  return null;
 }
