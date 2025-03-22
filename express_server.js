@@ -3,6 +3,10 @@ const cookieParser = require("cookie-parser");
 const app = express();
 const PORT = 8080; // default port 8080
 
+
+
+
+// ---------- PSEUDODATABASES ---------- //
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -16,22 +20,25 @@ const users = {
   },
 };
 
-app.set("view engine", "ejs");
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
 };
 
+
+
+// ---------- MIDDLEWARE? ---------- //
 // convert request body to a readable string from the request body
 // then it will add the data into req.body
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.set("view engine", "ejs");
 
-// maybe will remove this in finished version
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
 
+
+
+
+// ---------- LOGIN ---------- //
 //render login ejs
 app.get("/login", (req, res) => {
   const user = users[req.cookies.user_id] || null;
@@ -39,6 +46,67 @@ app.get("/login", (req, res) => {
   res.render("login", templateVars);
 });
 
+// handling log in page
+app.post("/login", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  // user should have been store in users object
+  const user = getUserByEmail(email);
+  
+  // if no user was found, it would return null
+  if(!user) {
+    return res.status(403).send("Email was not found!");
+  } 
+  // match the password on the form vs user stored password
+  if(user.password !== password) {
+    return res.status(403).send("Invalid Password!");
+  }
+  
+  // if both conditions met, login success, set cookie
+  res.cookie("user_id", user.id);
+  res.redirect("/urls");
+});
+
+
+
+
+
+// ---------- REGISTRATION ---------- // 
+// render the register.ejs 
+app.get("/register", (req, res) => {
+  const user = users[req.cookies.user_id] || null;
+  const templateVars = { user }
+  res.render("register", templateVars);
+});
+
+//handle registration form 
+app.post("/register", (req, res) => {
+
+  //validate that values were entered for both fields
+  if (req.body.email === "" || req.body.password === "") {
+    return res.status(400).send("Email and Password cannot be empty!");
+  }
+
+  // check if email is already inside the users object
+  if (getUserByEmail(req.body.email)) {
+    return res.status(400).send("User already exists!");
+  }
+
+  const randomID = generateRandomString();
+  users[randomID] = {
+    id: randomID,
+    email: req.body.email,
+    password: req.body.password,
+  };
+
+  res.cookie("user_id", randomID);
+  res.redirect("/urls");
+});
+
+
+
+
+// ---------- MAIN APP ROUTES ---------- //
 app.get("/urls", (req, res) => {
   const user = users[req.cookies.user_id] || null;
   const templateVars = {
@@ -48,14 +116,6 @@ app.get("/urls", (req, res) => {
 
   res.render("urls_index", templateVars);
 });
-
-// render the register.ejs 
-app.get("/register", (req, res) => {
-  const user = users[req.cookies.user_id] || null;
-  const templateVars = { user }
-  res.render("register", templateVars);
-});
-
 
 app.get("/urls/new", (req, res) => {
   // user is either set or not set 
@@ -109,60 +169,10 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-// maybe remove this in finished version of project
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
 app.get("/u/:id", (req, res) => {
   // req.params.id contains the data from the form
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
-});
-
-//handle registration form 
-app.post("/register", (req, res) => {
-
-  //validate that values were entered for both fields
-  if (req.body.email === "" || req.body.password === "") {
-    return res.status(400).send("Email and Password cannot be empty!");
-  }
-
-  // check if email is already inside the users object
-  if (getUserByEmail(req.body.email)) {
-    return res.status(400).send("User already exists!");
-  }
-
-  const randomID = generateRandomString();
-  users[randomID] = {
-    id: randomID,
-    email: req.body.email,
-    password: req.body.password,
-  };
-
-  res.cookie("user_id", randomID);
-  res.redirect("/urls");
-});
-
-// handling log in page
-app.post("/login", (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
-  // user should have been store in users object
-  const user = getUserByEmail(email);
-  
-  // if no user was found, it would return null
-  if(!user) {
-    return res.status(403).send("Email was not found!");
-  } 
-  // match the password on the form vs user stored password
-  if(user.password !== password) {
-    return res.status(403).send("Invalid Password!");
-  }
-
-  // if both conditions met, login success, set cookie
-  res.cookie("user_id", user.id);
-  res.redirect("/urls");
 });
 
 // logged in -> log out
@@ -175,6 +185,11 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
+
+
+
+
+// ---------- HELPER FUNCTIONS ---------- //
 // used to generate both the short URL and unique userIDs
 function generateRandomString() {
   return Math.random() // generates random 1 > num > 0
