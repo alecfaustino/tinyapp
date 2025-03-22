@@ -43,6 +43,11 @@ app.set("view engine", "ejs");
 app.get("/login", (req, res) => {
   const user = users[req.cookies.user_id] || null;
   const templateVars = { user }
+
+  //if there's already a user logged in, they don't need to login
+  if(user !== null) {
+    return res.redirect("/urls");
+  }
   res.render("login", templateVars);
 });
 
@@ -76,6 +81,13 @@ app.post("/login", (req, res) => {
 app.get("/register", (req, res) => {
   const user = users[req.cookies.user_id] || null;
   const templateVars = { user }
+
+  //if there's already a user, they don't need to register.
+  if(user !== null) {
+    return res.redirect("/urls");
+  }
+
+
   res.render("register", templateVars);
 });
 
