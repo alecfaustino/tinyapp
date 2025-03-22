@@ -22,10 +22,9 @@
           <% } else{ %>
             <!-- render if not logged in -->
             <!-- display: flex in bootstrap -->
-            <form class="d-flex" method="POST" action="/login">
-              <input class="form-control" type="text" placeholder="Username" name="username">
-              <button type="submit" class="btn btn-outline-dark">Login</button>
-            </form>
+              <a href="/register" class="btn btn-outline-dark">Register</a>
+              <a href="/login" class="btn btn-outline-dark">Login</a>
+              
             <% } %>
 
       </div>
