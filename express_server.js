@@ -1,10 +1,11 @@
 const express = require("express");
 const cookieSession = require("cookie-session");
+const methodOverride = require('method-override');
 const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = 8080; // default port 8080
 // Helper Functions //
-const { getUserByEmail, urlsForUser } = require('./helpers');
+const { getUserByEmail, urlsForUser, generateRandomString } = require('./helpers');
 
 
 
@@ -14,7 +15,7 @@ const users = {
   userRandomID: {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur",
+    password: "easier",
   },
   user2RandomID: {
     id: "user2RandomID",
@@ -37,7 +38,8 @@ app.use(cookieSession({
 
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
-}))
+}));
+app.use(methodOverride('_method'));
 app.set("view engine", "ejs");
 
 
@@ -211,7 +213,7 @@ app.post("/urls", (req, res) => {
 });
 
 // for when we hit the delete button on /urls
-app.post("/urls/:id/delete", (req, res) => {
+app.delete("/urls/:id", (req, res) => {
   const shortId = req.params.id;
   const user = users[req.session.user_id] || null;
   const entry = urlDatabase[shortId];
@@ -233,7 +235,7 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 // for when we submit the edit form, render urls_index again with updated
-app.post("/urls/:id", (req, res) => {
+app.put("/urls/:id", (req, res) => {
   const shortId = req.params.id;
   const user = users[req.session.user_id] || null;
   const entry = urlDatabase[shortId];
@@ -284,16 +286,3 @@ app.post("/logout", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
-
-
-
-
-// ---------- HELPER FUNCTIONS ---------- //
-// used to generate both the short URL and unique userIDs
-function generateRandomString() {
-  return Math.random() // generates random 1 > num > 0
-  .toString(36) // converting the number to base 36 (0-9 & a-z)
-  .substring(2, 2 + 6); // removes the 0. from beginning (from how random generates #) 
-  // will only provide 6 characters max 
-};

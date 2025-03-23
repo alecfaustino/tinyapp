@@ -48,7 +48,7 @@
               <!-- table data: the delete button -->
               <td>
                 <!-- dynamically pass the id with <%= id %> -->
-                <form method="POST" action="/urls/<%= id %>/delete">
+                <form method="POST" action="/urls/<%= id %>?_method=DELETE">
                   <button type="submit" class="btn btn-outline-danger">Delete</button>
                 </form>
               </td>

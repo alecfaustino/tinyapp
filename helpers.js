@@ -24,7 +24,16 @@ function urlsForUser(id, urlDatabase) {
   return filteredURLS;
 };
 
+// used to generate both the short URL and unique userIDs
+function generateRandomString() {
+  return Math.random() // generates random 1 > num > 0
+  .toString(36) // converting the number to base 36 (0-9 & a-z)
+  .substring(2, 2 + 6); // removes the 0. from beginning (from how random generates #) 
+  // will only provide 6 characters max 
+};
+
 module.exports = {
   getUserByEmail,
-  urlsForUser
+  urlsForUser,
+  generateRandomString,
 }
