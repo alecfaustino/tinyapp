@@ -48,15 +48,15 @@
       </div>
       <div>
         <h6>Visit Log:</h6>
-          <ul>
+          <span>
             <% visitInstances.forEach((instance) => { %>
-              <li>Visitor ID: <%= instance.id %>
-                <span>
+                <span> ID: <%= instance.id %> 
                 Timestamp: <%= instance.timestamp %>
+                <br>
                 </span>
               </li> 
             <% }); %>
-          </ul>
+          <span>
       </div>
       
     </div>

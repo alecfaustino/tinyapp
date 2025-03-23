@@ -12,16 +12,8 @@ const { getUserByEmail, urlsForUser, generateRandomString } = require('./helpers
 
 // ---------- PSEUDODATABASES ---------- //
 const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "easier",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
+  //removed temporary data
+  //changed storing structure
 };
 
 const urlDatabase = {};
