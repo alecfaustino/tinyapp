@@ -188,7 +188,8 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = {
     user,
     id: req.params.id, 
-    longURL: urlDatabase[req.params.id].longURL,
+    longURL: entry.longURL,
+    visits: entry.visitCounter,
   };
   
   res.render("urls_show", templateVars);
@@ -266,14 +267,25 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/u/:id", (req, res) => {
   // req.params.id contains the data from the form
-  const longURL = urlDatabase[req.params.id];
+  const targetURL = urlDatabase[req.params.id];
 
    // handling if url does not exist (the id always exists because it's in req.params)
-   if(!longURL) {
+   if(!targetURL) {
     return res.status(404).send("The shortened URL does not exist");
   }
 
-  res.redirect(longURL);
+  // this is the first place I introduced a counter so need to initialize it
+  if(!targetURL.visitCounter) {
+    targetURL.visitCounter = 0;
+  }
+
+  console.log("Redirecting to:", targetURL.longURL);
+
+  //increment the count by 1 each time it's visited. 
+  targetURL.visitCounter += 1;
+
+  //send to the longURL address
+  res.redirect(targetURL.longURL);
 });
 
 // logged in -> log out
