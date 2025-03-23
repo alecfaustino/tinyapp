@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = 8080; // default port 8080
 // Helper Functions //
-const { getUserByEmail } = require('./views/helpers');
+const { getUserByEmail } = require('./helpers');
 
 
 
