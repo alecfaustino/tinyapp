@@ -1,5 +1,5 @@
 const express = require("express");
-const cookiesession = require("cookie-session");
+const cookieSession = require("cookie-session");
 const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = 8080; // default port 8080
@@ -31,7 +31,7 @@ const urlDatabase = {};
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'session',
-  keys: [/* secret keys */],
+  keys: ['aeAWEGgasbz'],
 
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
@@ -62,7 +62,7 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   // user should have been stored in users object
-  const user = getUserByEmail(email);
+  const user = getUserByEmail(email, users);
   
   // if no user was found, it would return null
   if(!user) {
@@ -107,7 +107,7 @@ app.post("/register", (req, res) => {
   }
   
   // check if email is already inside the users object
-  if (getUserByEmail(email)) {
+  if (getUserByEmail(email, users)) {
     return res.status(400).send("User already exists!");
   }
   
@@ -297,10 +297,10 @@ function generateRandomString() {
 };
 
 // loop through the users object to see if the email exists. 
-function getUserByEmail(email) {
-  for (const user in users) {
-    if (users[user].email === email) {
-      return users[user];
+function getUserByEmail(email, database) {
+  for (const user in database) {
+    if (database[user].email === email) {
+      return database[user];
     }
   }
   return null;
