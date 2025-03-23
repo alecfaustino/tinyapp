@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = 8080; // default port 8080
 // Helper Functions //
-const { getUserByEmail } = require('./helpers');
+const { getUserByEmail, urlsForUser } = require('./helpers');
 
 
 
@@ -139,7 +139,7 @@ app.get("/urls", (req, res) => {
   }
 
   // showing only what belongs to user
-  const userURLs = urlsForUser(req.session.user_id);
+  const userURLs = urlsForUser(req.session.user_id, urlDatabase);
 
 
   const templateVars = {
@@ -296,18 +296,4 @@ function generateRandomString() {
   .toString(36) // converting the number to base 36 (0-9 & a-z)
   .substring(2, 2 + 6); // removes the 0. from beginning (from how random generates #) 
   // will only provide 6 characters max 
-};
-// finding the urls that only belong to the user
-function urlsForUser(id) {
-  let fileredURLS = {};
-
-  // each short URL
-  for(const shortURL in urlDatabase) {
-    // only put the urls that belong to the same ID to the filtered
-    if(urlDatabase[shortURL].userID === id) {
-      fileredURLS[shortURL] = urlDatabase[shortURL];
-    }
-  }
-
-  return fileredURLS;
 };

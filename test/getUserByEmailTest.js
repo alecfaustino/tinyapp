@@ -24,8 +24,9 @@ describe('getUserByEmail', function() {
   });
 
   it('should return null with an invalid email', function() {
-    const user = getUserByEmail("notreal@test.com");
+    const user = getUserByEmail("notreal@test.com", testUsers);
 
     assert.isNull(user);
   });
 });
+
