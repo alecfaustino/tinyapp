@@ -1,5 +1,5 @@
 const express = require("express");
-const cookieParser = require("cookie-parser");
+const cookiesession = require("cookie-session");
 const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = 8080; // default port 8080
@@ -29,7 +29,13 @@ const urlDatabase = {};
 // convert request body to a readable string from the request body
 // then it will add the data into req.body
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: [/* secret keys */],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
 app.set("view engine", "ejs");
 
 
@@ -39,13 +45,15 @@ app.set("view engine", "ejs");
 // ---------- LOGIN ---------- //
 //render login ejs
 app.get("/login", (req, res) => {
-  const user = users[req.cookies.user_id] || null;
+  const user = users[req.session.user_id] || null;
   const templateVars = { user }
 
   //if there's already a user logged in, they don't need to login
   if(user !== null) {
     return res.redirect("/urls");
   }
+
+  //if not, render the form
   res.render("login", templateVars);
 });
 
@@ -66,7 +74,7 @@ app.post("/login", (req, res) => {
   }
   
   // if both conditions met, login success, set cookie
-  res.cookie("user_id", user.id);
+  req.session.user_id = user.id;
   res.redirect("/urls");
 });
 
@@ -77,7 +85,7 @@ app.post("/login", (req, res) => {
 // ---------- REGISTRATION ---------- // 
 // render the register.ejs 
 app.get("/register", (req, res) => {
-  const user = users[req.cookies.user_id] || null;
+  const user = users[req.session.user_id] || null;
   const templateVars = { user }
 
   //if there's already a user, they don't need to register.
@@ -111,7 +119,7 @@ app.post("/register", (req, res) => {
     password: hashedPassword
   };
 
-  res.cookie("user_id", randomID);
+  req.session.user_id = randomID;
   res.redirect("/urls");
 });
 
@@ -121,7 +129,7 @@ app.post("/register", (req, res) => {
 // ---------- MAIN APP ROUTES ---------- //
 // *** GET ROUTES *** // 
 app.get("/urls", (req, res) => {
-  const user = users[req.cookies.user_id] || null;
+  const user = users[req.session.user_id] || null;
 
   // check if user is logged in 
   if(!user) {
@@ -129,7 +137,7 @@ app.get("/urls", (req, res) => {
   }
 
   // showing only what belongs to user
-  const userURLs = urlsForUser(req.cookies.user_id);
+  const userURLs = urlsForUser(req.session.user_id);
 
 
   const templateVars = {
@@ -143,7 +151,7 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   // user is either set or not set 
-  const user = users[req.cookies.user_id] || null;
+  const user = users[req.session.user_id] || null;
 
   // if the user is not logged in, send to login page
   if(!user) {
@@ -156,7 +164,7 @@ app.get("/urls/new", (req, res) => {
 // for urls_show when we have a path to a specific shortened url id
 app.get("/urls/:id", (req, res) => {
   // user is either logged in or not
-  const user = users[req.cookies.user_id] || null;
+  const user = users[req.session.user_id] || null;
 
   const entry = urlDatabase[req.params.id];
 
@@ -170,7 +178,7 @@ app.get("/urls/:id", (req, res) => {
     return res.status(404).send("The url does not exist")
   }
 
-  if(entry.userID !== req.cookies.user_id) {
+  if(entry.userID !== req.session.user_id) {
     return res.status(403).send("You don't have permission to view this url");
   }
   const templateVars = {
@@ -184,7 +192,7 @@ app.get("/urls/:id", (req, res) => {
 
 // when we add a new link through create new URL
 app.post("/urls", (req, res) => {
-  const user = users[req.cookies.user_id] || null;
+  const user = users[req.session.user_id] || null;
 
   // user cannot make shortened URLs without login
   if(!user) {
@@ -203,7 +211,7 @@ app.post("/urls", (req, res) => {
 // for when we hit the delete button on /urls
 app.post("/urls/:id/delete", (req, res) => {
   const shortId = req.params.id;
-  const user = users[req.cookies.user_id] || null;
+  const user = users[req.session.user_id] || null;
   const entry = urlDatabase[shortId];
     // if the user is  not logged in
     if(!user) {
@@ -213,7 +221,7 @@ app.post("/urls/:id/delete", (req, res) => {
     if(!entry) {
       return res.status(404).send("The url does not exist")
     }
-    if(entry.userID !== req.cookies.user_id) {
+    if(entry.userID !== req.session.user_id) {
       return res.status(403).send("You don't have permission to delete this url");
     }
   //req.params.id contains the data from the form 
@@ -225,7 +233,7 @@ app.post("/urls/:id/delete", (req, res) => {
 // for when we submit the edit form, render urls_index again with updated
 app.post("/urls/:id", (req, res) => {
   const shortId = req.params.id;
-  const user = users[req.cookies.user_id] || null;
+  const user = users[req.session.user_id] || null;
   const entry = urlDatabase[shortId];
   //res.body.longURL is available due to name attribute on input
   const newLongURL = req.body.longURL;
@@ -238,7 +246,7 @@ app.post("/urls/:id", (req, res) => {
   if(!entry) {
     return res.status(404).send("The url does not exist")
   }
-  if(entry.userID !== req.cookies.user_id) {
+  if(entry.userID !== req.session.user_id) {
     return res.status(403).send("You don't have permission to edit this url");
   }
   //update urlDatabase
@@ -266,7 +274,8 @@ app.get("/u/:id", (req, res) => {
 
 // logged in -> log out
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  //clear the session cookie
+  req.session = null;
   res.redirect("/login");
 });
 
