@@ -116,6 +116,7 @@ app.post("/register", (req, res) => {
 
 
 // ---------- MAIN APP ROUTES ---------- //
+// *** GET ROUTES *** // 
 app.get("/urls", (req, res) => {
   const user = users[req.cookies.user_id] || null;
 
@@ -198,6 +199,20 @@ app.post("/urls", (req, res) => {
 
 // for when we hit the delete button on /urls
 app.post("/urls/:id/delete", (req, res) => {
+  const shortId = req.params.id;
+  const user = users[req.cookies.user_id] || null;
+  const entry = urlDatabase[shortId];
+    // if the user is  not logged in
+    if(!user) {
+      return res.status(401).send("Please login to access URLs");
+    }
+    // if the ID doesn't exist
+    if(!entry) {
+      return res.status(404).send("The url does not exist")
+    }
+    if(entry.userID !== req.cookies.user_id) {
+      return res.status(403).send("You don't have permission to delete this url");
+    }
   //req.params.id contains the data from the form 
   delete urlDatabase[req.params.id];
   
@@ -208,9 +223,21 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const shortId = req.params.id;
   const user = users[req.cookies.user_id] || null;
+  const entry = urlDatabase[shortId];
   //res.body.longURL is available due to name attribute on input
   const newLongURL = req.body.longURL;
   
+  // if the user is  not logged in
+  if(!user) {
+    return res.status(401).send("Please login to access URLs");
+  }
+  // if the ID doesn't exist
+  if(!entry) {
+    return res.status(404).send("The url does not exist")
+  }
+  if(entry.userID !== req.cookies.user_id) {
+    return res.status(403).send("You don't have permission to edit this url");
+  }
   //update urlDatabase
   urlDatabase[shortId].longURL = newLongURL;
   //render urls_index
@@ -219,6 +246,7 @@ app.post("/urls/:id", (req, res) => {
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
+
 });
 
 app.get("/u/:id", (req, res) => {
