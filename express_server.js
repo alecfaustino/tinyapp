@@ -185,11 +185,27 @@ app.get("/urls/:id", (req, res) => {
   if(entry.userID !== req.session.user_id) {
     return res.status(403).send("You don't have permission to view this url");
   }
+  
+  // So that we don't get an error when we submit a newURL,
+  // initialize the set here
+  // if the unique visitors property is not initiated yet
+  // a set is an array-type object that does not allow duplicates
+  if (!entry.uniqueVisitors) {
+    entry.uniqueVisitors = new Set(); 
+  }
+
+    // this is the first place I introduced a counter so need to initialize it
+  if(!targetURL.visitCounter) {
+    targetURL.visitCounter = 0;
+  }
+
   const templateVars = {
     user,
     id: req.params.id, 
     longURL: entry.longURL,
     visits: entry.visitCounter,
+    // .size since uniqueVisitors is a set not a real array. 
+    uniqueVisitors: entry.uniqueVisitors.size,
   };
   
   res.render("urls_show", templateVars);
@@ -274,12 +290,23 @@ app.get("/u/:id", (req, res) => {
     return res.status(404).send("The shortened URL does not exist");
   }
 
-  // this is the first place I introduced a counter so need to initialize it
-  if(!targetURL.visitCounter) {
-    targetURL.visitCounter = 0;
+  // ----- Counters ----- // 
+  // if the user is logged in, use their user ID as the visitor ID, too. 
+  if(req.session.user_id) {
+    // add is a set method. If the logged in user already visited before, they won't be added to the set. 
+    // set does not allow duplicates. 
+    targetURL.uniqueVisitors.add(req.session.user_id);
+  } else {
+    // if the user is not logged in. 
+    // since non-logged in users have permissions to view this, we need to count their visits
+    //set cookie if this visitor hasn't ever visited yet
+    if (!req.session.visitor_id) {
+      // give them unique ID
+      req.session.visitor_id = generateRandomString();
+    }
+    // add to set
+    targetURL.uniqueVisitors.add(req.session.visitor_id);
   }
-
-  console.log("Redirecting to:", targetURL.longURL);
 
   //increment the count by 1 each time it's visited. 
   targetURL.visitCounter += 1;
