@@ -1,5 +1,6 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -52,15 +53,15 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  // user should have been store in users object
+  // user should have been stored in users object
   const user = getUserByEmail(email);
   
   // if no user was found, it would return null
   if(!user) {
     return res.status(403).send("Email was not found!");
   } 
-  // match the password on the form vs user stored password
-  if(user.password !== password) {
+  // match the password on the form vs user stored password (hashed)
+  if(!bcrypt.compareSync(password, user.password)) {
     return res.status(403).send("Invalid Password!");
   }
   
@@ -90,22 +91,24 @@ app.get("/register", (req, res) => {
 
 //handle registration form 
 app.post("/register", (req, res) => {
-
+  const email = req.body.email;
+  const password = req.body.password;
   //validate that values were entered for both fields
-  if (req.body.email === "" || req.body.password === "") {
+  if (email === "" || password === "") {
     return res.status(400).send("Email and Password cannot be empty!");
   }
-
+  
   // check if email is already inside the users object
-  if (getUserByEmail(req.body.email)) {
+  if (getUserByEmail(email)) {
     return res.status(400).send("User already exists!");
   }
-
+  
+  const hashedPassword = bcrypt.hashSync(password, 10);
   const randomID = generateRandomString();
   users[randomID] = {
     id: randomID,
-    email: req.body.email,
-    password: req.body.password,
+    email,
+    password: hashedPassword
   };
 
   res.cookie("user_id", randomID);
