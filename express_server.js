@@ -50,10 +50,10 @@ app.set("view engine", "ejs");
 //render login ejs
 app.get("/login", (req, res) => {
   const user = users[req.session.user_id] || null;
-  const templateVars = { user }
+  const templateVars = { user };
 
   //if there's already a user logged in, they don't need to login
-  if(user !== null) {
+  if (user !== null) {
     return res.redirect("/urls");
   }
 
@@ -69,11 +69,11 @@ app.post("/login", (req, res) => {
   const user = getUserByEmail(email, users);
   
   // if no user was found, it would return null
-  if(!user) {
+  if (!user) {
     return res.status(403).send("Email was not found!");
-  } 
+  }
   // match the password on the form vs user stored password (hashed)
-  if(!bcrypt.compareSync(password, user.password)) {
+  if (!bcrypt.compareSync(password, user.password)) {
     return res.status(403).send("Invalid Password!");
   }
   
@@ -86,14 +86,14 @@ app.post("/login", (req, res) => {
 
 
 
-// ---------- REGISTRATION ---------- // 
-// render the register.ejs 
+// ---------- REGISTRATION ---------- //
+// render the register.ejs
 app.get("/register", (req, res) => {
   const user = users[req.session.user_id] || null;
-  const templateVars = { user }
+  const templateVars = { user };
 
   //if there's already a user, they don't need to register.
-  if(user !== null) {
+  if (user !== null) {
     return res.redirect("/urls");
   }
 
@@ -101,7 +101,7 @@ app.get("/register", (req, res) => {
   res.render("register", templateVars);
 });
 
-//handle registration form 
+//handle registration form
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -131,12 +131,12 @@ app.post("/register", (req, res) => {
 
 
 // ---------- MAIN APP ROUTES ---------- //
-// *** GET ROUTES *** // 
+// *** GET ROUTES *** //
 app.get("/urls", (req, res) => {
   const user = users[req.session.user_id] || null;
 
-  // check if user is logged in 
-  if(!user) {
+  // check if user is logged in
+  if (!user) {
     return res.status(401).send("Please log in or register to see URLs");
   }
 
@@ -154,11 +154,11 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  // user is either set or not set 
+  // user is either set or not set
   const user = users[req.session.user_id] || null;
 
   // if the user is not logged in, send to login page
-  if(!user) {
+  if (!user) {
     return res.redirect("/login");
   }
   // pass user
@@ -173,16 +173,16 @@ app.get("/urls/:id", (req, res) => {
   const entry = urlDatabase[req.params.id];
 
   // if the user is  not logged in
-  if(!user) {
+  if (!user) {
     return res.status(401).send("Please login to access URLs");
   }
 
   // if the ID doesn't exist
-  if(!entry) {
-    return res.status(404).send("The url does not exist")
+  if (!entry) {
+    return res.status(404).send("The url does not exist");
   }
 
-  if(entry.userID !== req.session.user_id) {
+  if (entry.userID !== req.session.user_id) {
     return res.status(403).send("You don't have permission to view this url");
   }
   
@@ -191,24 +191,24 @@ app.get("/urls/:id", (req, res) => {
   // if the unique visitors property is not initiated yet
   // a set is an array-type object that does not allow duplicates
   if (!entry.uniqueVisitors) {
-    entry.uniqueVisitors = new Set(); 
+    entry.uniqueVisitors = new Set();
   }
 
-    // this is the first place I introduced a counter so need to initialize it
-  if(!entry.visitCounter) {
+  // this is the first place I introduced a counter so need to initialize it
+  if (!entry.visitCounter) {
     entry.visitCounter = 0;
   }
 
-  if(!entry.visitInstances) {
+  if (!entry.visitInstances) {
     entry.visitInstances = [];
   }
 
   const templateVars = {
     user,
-    id: req.params.id, 
+    id: req.params.id,
     longURL: entry.longURL,
     visits: entry.visitCounter,
-    // .size since uniqueVisitors is a set not a real array. 
+    // .size since uniqueVisitors is a set not a real array.
     uniqueVisitors: entry.uniqueVisitors.size,
     visitInstances: entry.visitInstances
   };
@@ -221,7 +221,7 @@ app.post("/urls", (req, res) => {
   const user = users[req.session.user_id] || null;
 
   // user cannot make shortened URLs without login
-  if(!user) {
+  if (!user) {
     return res.status(403).send("Please login to shorten URLs");
   }
 
@@ -229,7 +229,7 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortURL] = {
     longURL: req.body.longURL,
     userID: user.id,
-  }
+  };
 
   res.redirect(`/urls/${shortURL}`);
 });
@@ -239,18 +239,18 @@ app.delete("/urls/:id", (req, res) => {
   const shortId = req.params.id;
   const user = users[req.session.user_id] || null;
   const entry = urlDatabase[shortId];
-    // if the user is  not logged in
-    if(!user) {
-      return res.status(401).send("Please login to access URLs");
-    }
-    // if the ID doesn't exist
-    if(!entry) {
-      return res.status(404).send("The url does not exist")
-    }
-    if(entry.userID !== req.session.user_id) {
-      return res.status(403).send("You don't have permission to delete this url");
-    }
-  //req.params.id contains the data from the form 
+  // if the user is  not logged in
+  if (!user) {
+    return res.status(401).send("Please login to access URLs");
+  }
+  // if the ID doesn't exist
+  if (!entry) {
+    return res.status(404).send("The url does not exist");
+  }
+  if (entry.userID !== req.session.user_id) {
+    return res.status(403).send("You don't have permission to delete this url");
+  }
+  //req.params.id contains the data from the form
   delete urlDatabase[req.params.id];
   
   res.redirect("/urls");
@@ -265,14 +265,14 @@ app.put("/urls/:id", (req, res) => {
   const newLongURL = req.body.longURL;
   
   // if the user is  not logged in
-  if(!user) {
+  if (!user) {
     return res.status(401).send("Please login to access URLs");
   }
   // if the ID doesn't exist
-  if(!entry) {
-    return res.status(404).send("The url does not exist")
+  if (!entry) {
+    return res.status(404).send("The url does not exist");
   }
-  if(entry.userID !== req.session.user_id) {
+  if (entry.userID !== req.session.user_id) {
     return res.status(403).send("You don't have permission to edit this url");
   }
   //update urlDatabase
@@ -290,19 +290,19 @@ app.get("/u/:id", (req, res) => {
   // req.params.id contains the data from the form
   const targetURL = urlDatabase[req.params.id];
 
-   // handling if url does not exist (the id always exists because it's in req.params)
-   if(!targetURL) {
+  // handling if url does not exist (the id always exists because it's in req.params)
+  if (!targetURL) {
     return res.status(404).send("The shortened URL does not exist");
   }
 
-  // ----- Counters ----- // 
-  // if the user is logged in, use their user ID as the visitor ID, too. 
-  if(req.session.user_id) {
-    // add is a set method. If the logged in user already visited before, they won't be added to the set. 
-    // set does not allow duplicates. 
+  // ----- Counters ----- //
+  // if the user is logged in, use their user ID as the visitor ID, too.
+  if (req.session.user_id) {
+    // add is a set method. If the logged in user already visited before, they won't be added to the set.
+    // set does not allow duplicates.
     targetURL.uniqueVisitors.add(req.session.user_id);
   } else {
-    // if the user is not logged in. 
+    // if the user is not logged in.
     // since non-logged in users have permissions to view this, we need to count their visits
     //set cookie if this visitor hasn't ever visited yet
     if (!req.session.visitor_id) {
@@ -313,16 +313,17 @@ app.get("/u/:id", (req, res) => {
     targetURL.uniqueVisitors.add(req.session.visitor_id);
   }
 
+  // the object to push into visitInstances in templateVars
   const visitInfo = {
     id: req.session.user_id || req.session.visitor_id,
     //toLocaleString to make it change to user's timezone
     timestamp: new Date().toLocaleString()
-  }
+  };
 
   //the array is already initialized, from /urls:id, simply push
-  targetURL.visitInstances.push(visitInfo)
+  targetURL.visitInstances.push(visitInfo);
 
-  //increment the count by 1 each time it's visited. 
+  //increment the count by 1 each time it's visited.
   targetURL.visitCounter += 1;
 
   //send to the longURL address
