@@ -20,10 +20,7 @@ const users = {
   },
 };
 
-const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
-};
+const urlDatabase = {};
 
 
 
@@ -148,7 +145,7 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = {
     user,
     id: req.params.id, 
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[req.params.id].longURL,
   };
   
   res.render("urls_show", templateVars);
@@ -164,7 +161,10 @@ app.post("/urls", (req, res) => {
   }
 
   const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL] = {
+    longURL: req.body.longURL,
+    userID: user.id,
+  }
 
   res.redirect(`/urls/${shortURL}`);
 });
@@ -201,7 +201,7 @@ app.get("/u/:id", (req, res) => {
    if(!longURL) {
     return res.status(404).send("The shortened URL does not exist");
   }
-  
+
   res.redirect(longURL);
 });
 
