@@ -118,10 +118,21 @@ app.post("/register", (req, res) => {
 // ---------- MAIN APP ROUTES ---------- //
 app.get("/urls", (req, res) => {
   const user = users[req.cookies.user_id] || null;
+
+  // check if user is logged in 
+  if(!user) {
+    return res.status(401).send("Please log in or register to see URLs");
+  }
+
+  // showing only what belongs to user
+  const userURLs = urlsForUser(req.cookies.user_id);
+
+
   const templateVars = {
     user,
-    urls: urlDatabase,
+    urls: userURLs,
   };
+
 
   res.render("urls_index", templateVars);
 });
@@ -180,11 +191,12 @@ app.post("/urls/:id/delete", (req, res) => {
 // for when we submit the edit form, render urls_index again with updated
 app.post("/urls/:id", (req, res) => {
   const shortId = req.params.id;
+  const user = users[req.cookies.user_id] || null;
   //res.body.longURL is available due to name attribute on input
   const newLongURL = req.body.longURL;
   
   //update urlDatabase
-  urlDatabase[shortId] = newLongURL;
+  urlDatabase[shortId].longURL = newLongURL;
   //render urls_index
   res.redirect("/urls");
 });
@@ -226,7 +238,7 @@ function generateRandomString() {
   .toString(36) // converting the number to base 36 (0-9 & a-z)
   .substring(2, 2 + 6); // removes the 0. from beginning (from how random generates #) 
   // will only provide 6 characters max 
-}
+};
 
 // loop through the users object to see if the email exists. 
 function getUserByEmail(email) {
@@ -236,4 +248,16 @@ function getUserByEmail(email) {
     }
   }
   return null;
-}
+};
+
+function urlsForUser(id) {
+  let fileredURLS = {};
+
+  for(const shortURL in urlDatabase) {
+    if(urlDatabase[shortURL].userID === id) {
+      fileredURLS[shortURL] = urlDatabase[shortURL];
+    }
+  }
+
+  return fileredURLS;
+};
