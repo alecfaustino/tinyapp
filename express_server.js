@@ -153,6 +153,22 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   // user is either logged in or not
   const user = users[req.cookies.user_id] || null;
+
+  const entry = urlDatabase[req.params.id];
+
+  // if the user is  not logged in
+  if(!user) {
+    return res.status(401).send("Please login to access URLs");
+  }
+
+  // if the ID doesn't exist
+  if(!entry) {
+    return res.status(404).send("The url does not exist")
+  }
+
+  if(entry.userID !== req.cookies.user_id) {
+    return res.status(403).send("You don't have permission to view this url");
+  }
   const templateVars = {
     user,
     id: req.params.id, 
