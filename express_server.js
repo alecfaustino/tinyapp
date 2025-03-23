@@ -294,10 +294,13 @@ function getUserByEmail(email) {
   return null;
 };
 
+// finding the urls that only belong to the user
 function urlsForUser(id) {
   let fileredURLS = {};
 
+  // each short URL
   for(const shortURL in urlDatabase) {
+    // only put the urls that belong to the same ID to the filtered
     if(urlDatabase[shortURL].userID === id) {
       fileredURLS[shortURL] = urlDatabase[shortURL];
     }
