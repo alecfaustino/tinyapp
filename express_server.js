@@ -195,8 +195,12 @@ app.get("/urls/:id", (req, res) => {
   }
 
     // this is the first place I introduced a counter so need to initialize it
-  if(!targetURL.visitCounter) {
-    targetURL.visitCounter = 0;
+  if(!entry.visitCounter) {
+    entry.visitCounter = 0;
+  }
+
+  if(!entry.visitInstances) {
+    entry.visitInstances = [];
   }
 
   const templateVars = {
@@ -206,6 +210,7 @@ app.get("/urls/:id", (req, res) => {
     visits: entry.visitCounter,
     // .size since uniqueVisitors is a set not a real array. 
     uniqueVisitors: entry.uniqueVisitors.size,
+    visitInstances: entry.visitInstances
   };
   
   res.render("urls_show", templateVars);
@@ -307,6 +312,15 @@ app.get("/u/:id", (req, res) => {
     // add to set
     targetURL.uniqueVisitors.add(req.session.visitor_id);
   }
+
+  const visitInfo = {
+    id: req.session.user_id || req.session.visitor_id,
+    //toLocaleString to make it change to user's timezone
+    timestamp: new Date().toLocaleString()
+  }
+
+  //the array is already initialized, from /urls:id, simply push
+  targetURL.visitInstances.push(visitInfo)
 
   //increment the count by 1 each time it's visited. 
   targetURL.visitCounter += 1;

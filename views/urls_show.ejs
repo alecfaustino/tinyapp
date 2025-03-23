@@ -46,6 +46,19 @@
         <h6>Unique Visits:</h6>
         <span><%= uniqueVisitors %></span>
       </div>
+      <div>
+        <h6>Visit Log:</h6>
+          <ul>
+            <% visitInstances.forEach((instance) => { %>
+              <li>Visitor ID: <%= instance.id %>
+                <span>
+                Timestamp: <%= instance.timestamp %>
+                </span>
+              </li> 
+            <% }); %>
+          </ul>
+      </div>
+      
     </div>
     <!-- Bootstrap JS -->
     <script
